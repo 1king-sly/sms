@@ -1,16 +1,16 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Building2, GraduationCap, Users } from "lucide-react";
-import { db } from "@/lib/db";
 import { getServerSession } from "next-auth";
-import { authOptions } from "../api/auth/[...nextauth]/route";
+import { authOptions } from '@/utils/authOptions';
+import { countSchools,countTeachers,countStudents } from "@/lib/actions";
 
 export default async function DashboardPage() {
-  // const session = await getServerSession(authOptions);
   
-  // const schoolsCount = await db.school.count();
-  // const studentsCount = await db.student.count();
-  // const teachersCount = await db.teacher.count();
+  
+  const schoolsCount = await countSchools()
+  const studentsCount = await countStudents()
+  const teachersCount = await countTeachers()
 
   return (
     <div className="space-y-6">

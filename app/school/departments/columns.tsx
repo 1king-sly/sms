@@ -22,7 +22,7 @@ export const columns: ColumnDef<Department & { admins: any[] }>[] = [
     header: "Admins",
     cell: ({ row }) => {
       const admins = row.original.admins;
-      return <div>{admins.length} admin(s)</div>;
+      return <div>{admins.length || 0} admin(s)</div>;
     },
   },
   {

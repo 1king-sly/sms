@@ -8,19 +8,12 @@ import {
 } from "@/components/ui/card";
 import { Plus } from "lucide-react";
 import Link from "next/link";
-import { db } from "@/lib/db";
 import { DataTable } from "./data-table";
 import { columns } from "./columns";
+import { fetchSchools } from "@/lib/actions";
 
 export default async function SchoolsPage() {
-  // const schools = await db.school.findMany({
-  //   include: {
-  //     schoolAdmin: true,
-  //   },
-  //   orderBy: {
-  //     createdAt: "desc",
-  //   },
-  // });
+  // const schools = await fetchSchools()
 
   const schools = [
     {

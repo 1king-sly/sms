@@ -1,6 +1,6 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-import { authOptions } from "../api/auth/[...nextauth]/route";
+import { authOptions } from '@/utils/authOptions';
 import SchoolDashboardLayout from "@/components/layout/school-dashboard-layout";
 
 export default async function Layout({
@@ -8,11 +8,11 @@ export default async function Layout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getServerSession(authOptions);
+  // const session = await getServerSession(authOptions);
 
-  if (!session || session.user.role !== "SCHOOL_ADMIN") {
-    redirect("/login");
-  }
+  // if (!session || session.user.role !== "SCHOOL_ADMIN") {
+  //   redirect("/login");
+  // }
 
   return <SchoolDashboardLayout>{children}</SchoolDashboardLayout>;
 }

@@ -8,30 +8,90 @@ import {
 } from "@/components/ui/card";
 import { Plus } from "lucide-react";
 import Link from "next/link";
-import { db } from "@/lib/db";
 import { getServerSession } from "next-auth";
-import { authOptions } from "../../api/auth/[...nextauth]/route";
+import { authOptions } from '@/utils/authOptions';
 import { DataTable } from "./data-table";
 import { columns } from "./columns";
+import { fetchSchoolDepartments } from "@/lib/actions";
 
 export default async function DepartmentsPage() {
-  const session = await getServerSession(authOptions);
-  
-  const schoolAdmin = await db.schoolAdmin.findUnique({
-    where: { email: session?.user?.email },
-  });
+ 
+  // const departments = await fetchSchoolDepartments()
 
-  const departments = await db.department.findMany({
-    where: {
-      schoolId: schoolAdmin?.schoolId,
+  const departments = [
+    {
+      id: "dept-1",
+      name: "Science Department",
+      schoolId: "school-123",
+      createdAt: new Date("2023-01-01"),
+      updatedAt: new Date("2023-06-01"),
+      admins: [{ id: "admin-1", name: "John Doe" }, { id: "admin-2", name: "Jane Smith" }],
     },
-    include: {
-      admins: true,
+    {
+      id: "dept-2",
+      name: "Mathematics Department",
+      schoolId: "school-123",
+      createdAt: new Date("2023-02-01"),
+      updatedAt: new Date("2023-06-15"),
+      admins: [{ id: "admin-3", name: "Alice Johnson" }],
     },
-    orderBy: {
-      createdAt: "desc",
+    {
+      id: "dept-3",
+      name: "Literature Department",
+      schoolId: "school-456",
+      createdAt: new Date("2023-03-01"),
+      updatedAt: new Date("2023-07-01"),
+      admins: [{ id: "admin-4", name: "Michael Brown" }],
     },
-  });
+    {
+      id: "dept-1",
+      name: "Science Department",
+      schoolId: "school-123",
+      createdAt: new Date("2023-01-01"),
+      updatedAt: new Date("2023-06-01"),
+      admins: [{ id: "admin-1", name: "John Doe" }, { id: "admin-2", name: "Jane Smith" }],
+    },
+    {
+      id: "dept-2",
+      name: "Mathematics Department",
+      schoolId: "school-123",
+      createdAt: new Date("2023-02-01"),
+      updatedAt: new Date("2023-06-15"),
+      admins: [{ id: "admin-3", name: "Alice Johnson" }],
+    },
+    {
+      id: "dept-3",
+      name: "Literature Department",
+      schoolId: "school-456",
+      createdAt: new Date("2023-03-01"),
+      updatedAt: new Date("2023-07-01"),
+      admins: [{ id: "admin-4", name: "Michael Brown" }],
+    },
+    {
+      id: "dept-1",
+      name: "Science Department",
+      schoolId: "school-123",
+      createdAt: new Date("2023-01-01"),
+      updatedAt: new Date("2023-06-01"),
+      admins: [{ id: "admin-1", name: "John Doe" }, { id: "admin-2", name: "Jane Smith" }],
+    },
+    {
+      id: "dept-2",
+      name: "Mathematics Department",
+      schoolId: "school-123",
+      createdAt: new Date("2023-02-01"),
+      updatedAt: new Date("2023-06-15"),
+      admins: [{ id: "admin-3", name: "Alice Johnson" }],
+    },
+    {
+      id: "dept-3",
+      name: "Literature Department",
+      schoolId: "school-456",
+      createdAt: new Date("2023-03-01"),
+      updatedAt: new Date("2023-07-01"),
+      admins: [{ id: "admin-4", name: "Michael Brown" }],
+    },
+  ];
 
   return (
     <div className="space-y-6">
@@ -59,3 +119,5 @@ export default async function DepartmentsPage() {
     </div>
   );
 }
+
+

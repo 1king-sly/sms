@@ -1,8 +1,8 @@
 import { NextResponse } from "next/response";
 import { hash } from "bcryptjs";
-import { db } from "@/lib/db";
+import { prisma } from "@/lib/db;
 import { getServerSession } from "next-auth";
-import { authOptions } from "../auth/[...nextauth]/route";
+import { authOptions } from '@/utils/authOptions';
 
 export async function POST(req: Request) {
   try {
@@ -27,7 +27,7 @@ export async function POST(req: Request) {
     const hashedPassword = await hash(password, 10);
     const hashedAdminPassword = await hash(adminEmail, 10); // Using admin email as default password
 
-    const school = await db.school.create({
+    const school = await prisma.school.create({
       data: {
         name,
         email,
@@ -61,7 +61,7 @@ export async function GET(req: Request) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    const schools = await db.school.findMany({
+    const schools = await prisma.school.findMany({
       include: {
         schoolAdmin: true,
       },
