@@ -1,6 +1,6 @@
-import { NextResponse } from "next/response";
+import { NextResponse } from 'next/server';
 import { hash } from "bcryptjs";
-import { prisma } from "@/lib/db;
+import prisma from "@/lib/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from '@/utils/authOptions';
 

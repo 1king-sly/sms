@@ -5,6 +5,8 @@ import { authOptions } from '@/utils/authOptions';
 import { countSchoolTeachers, countSchoolStudents, countSchoolDepartments } from "@/lib/actions";
 
 export default async function SchoolDashboardPage() {
+
+  
   
   
 
