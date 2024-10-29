@@ -11,7 +11,8 @@ type User = {
   email: string;
   createdAt: Date;
   updatedAt:Date;
-  schoolId:string,
+  schoolId:string ,
+  role:string
 
 };
 
@@ -90,10 +91,11 @@ export const authOptions: NextAuthOptions = {
           id: user.id,
           email: user.email,
           name: user.name,
-          schoolId: user.schoolId,
+          schoolId: user.schoolId || '',
           hashedPassword:user.password,
           createdAt:user.createdAt,
-          updatedAt:user.updatedAt
+          updatedAt:user.updatedAt,
+          role:user.role,
 
         };
       },
@@ -107,6 +109,7 @@ export const authOptions: NextAuthOptions = {
           email:user.email,
           name:user.name,
           schoolId: user.schoolId,
+          role:user.role,
         };
       }
       return token;
@@ -117,6 +120,7 @@ export const authOptions: NextAuthOptions = {
         email: token.email,
         name: token.name,
         schoolId: token.schoolId,
+        role:token.role,
       };
     },
   

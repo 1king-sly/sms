@@ -10,11 +10,11 @@ export default async function SchoolDashboardPage() {
   
   
 
-  const teachersCount = await countSchoolTeachers()
+  // const teachersCount = await countSchoolTeachers()
 
-  const studentsCount = await countSchoolStudents()
+  // const studentsCount = await countSchoolStudents()
 
-  const departmentsCount = await countSchoolDepartments()
+  // const departmentsCount = await countSchoolDepartments()
 
   return (
     <div className="space-y-6">

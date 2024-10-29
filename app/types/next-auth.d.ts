@@ -7,6 +7,7 @@ declare module "next-auth" {
       name: string;
       email: string;
       schoolId: string ;  
+      role:string
     
   }
   interface User {
@@ -14,6 +15,8 @@ declare module "next-auth" {
     name: string;
     email: string;
     schoolId: string ;  
+    role:string,
+    schoolId:string,
 
 }
 

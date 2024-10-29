@@ -11,6 +11,8 @@ model SuperAdmin {
   id        String   @id @default(cuid())
   email     String   @unique
   password  String
+  role      String   @default("SUPER_ADMIN")
+  schoolId  String?
   name      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -18,32 +20,36 @@ model SuperAdmin {
 }
 
 model School {
-  id            String    @id @default(cuid())
-  name          String
-  email         String    @unique
-  password      String
-  logo          String?
-  address       String
-  contact       String
-  initials      String
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  superAdminId  String
-  superAdmin    SuperAdmin @relation(fields: [superAdminId], references: [id])
-  departments   Department[]
-  schoolAdmin   SchoolAdmin?
-  teachers      Teacher[]
-  students      Student[]
-  classes       Class[]
+  id           String       @id @default(cuid())
+  name         String
+  email        String       @unique
+  password     String
+  logo         String?
+  address      String
+  contact      String
+  initials     String
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  superAdminId String
+  superAdmin   SuperAdmin   @relation(fields: [superAdminId], references: [id])
+  departments  Department[]
+  schoolAdmin  SchoolAdmin?
+  teachers     Teacher[]
+  students     Student[]
+  classes      Class[]
 
   Subject Subject[]
+
+  DepartmentAdmin DepartmentAdmin[]
 }
 
 model SchoolAdmin {
-  id        String   @id @default(cuid())
-  name      String
-  email     String   @unique
-  password  String
+  id       String @id @default(cuid())
+  name     String
+  email    String @unique
+  password String
+  role     String @default("SCHOOL_ADMIN")
+
   schoolId  String   @unique
   school    School   @relation(fields: [schoolId], references: [id])
   createdAt DateTime @default(now())
@@ -51,76 +57,82 @@ model SchoolAdmin {
 }
 
 model Department {
-  id          String   @id @default(cuid())
-  name        String
-  schoolId    String
-  school      School   @relation(fields: [schoolId], references: [id])
-  admins      DepartmentAdmin[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        String            @id @default(cuid())
+  name      String
+  schoolId  String
+  school    School            @relation(fields: [schoolId], references: [id])
+  admins    DepartmentAdmin[]
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
 
   TeacherDepartment TeacherDepartment[]
 }
 
 model DepartmentAdmin {
-  id           String     @id @default(cuid())
+  id           String @id @default(cuid())
   name         String
-  email        String     @unique
+  email        String @unique
   password     String
+  departmentId String
+  role         String @default("DEPARTMENT_ADMIN")
+  schoolId     String
+  school       School @relation(fields: [schoolId], references: [id])
+
+  department Department @relation(fields: [departmentId], references: [id])
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+}
+
+model Teacher {
+  id       String  @id @default(cuid())
+  name     String
+  email    String  @unique
+  password String
+  idNumber String  @unique
+  photo    String?
+  schoolId String
+  role     String  @default("TEACHER")
+
+  school       School              @relation(fields: [schoolId], references: [id])
+  departments  TeacherDepartment[]
+  subjects     TeacherSubject[]
+  classTeacher Stream?             @relation("ClassTeacher")
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+}
+
+model TeacherDepartment {
+  id           String     @id @default(cuid())
+  teacherId    String
+  teacher      Teacher    @relation(fields: [teacherId], references: [id])
   departmentId String
   department   Department @relation(fields: [departmentId], references: [id])
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
-}
-
-model Teacher {
-  id            String    @id @default(cuid())
-  name          String
-  email         String    @unique
-  password      String
-  idNumber      String    @unique
-  photo         String?
-  schoolId      String
-  school        School    @relation(fields: [schoolId], references: [id])
-  departments   TeacherDepartment[]
-  subjects      TeacherSubject[]
-  classTeacher  Stream?   @relation("ClassTeacher")
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-}
-
-model TeacherDepartment {
-  id           String    @id @default(cuid())
-  teacherId    String
-  teacher      Teacher   @relation(fields: [teacherId], references: [id])
-  departmentId String
-  department   Department @relation(fields: [departmentId], references: [id])
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
 
   @@unique([teacherId, departmentId])
 }
 
 model Subject {
-  id          String    @id @default(cuid())
-  name        String
-  initials    String
-  category    String
-  schoolId    String
-  school      School    @relation(fields: [schoolId], references: [id])
-  teachers    TeacherSubject[]
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id        String           @id @default(cuid())
+  name      String
+  initials  String
+  category  String
+  schoolId  String
+  school    School           @relation(fields: [schoolId], references: [id])
+  teachers  TeacherSubject[]
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
 }
 
 model TeacherSubject {
-  id         String   @id @default(cuid())
-  teacherId  String
-  teacher    Teacher  @relation(fields: [teacherId], references: [id])
-  subjectId  String
-  subject    Subject  @relation(fields: [subjectId], references: [id])
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id        String   @id @default(cuid())
+  teacherId String
+  teacher   Teacher  @relation(fields: [teacherId], references: [id])
+  subjectId String
+  subject   Subject  @relation(fields: [subjectId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([teacherId, subjectId])
 }
@@ -136,27 +148,28 @@ model Class {
 }
 
 model Stream {
-  id            String   @id @default(cuid())
-  name          String
-  classId       String
-  class         Class    @relation(fields: [classId], references: [id])
-  teacherId     String?  @unique
-  classTeacher  Teacher? @relation("ClassTeacher", fields: [teacherId], references: [id])
-  students      Student[]
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id           String    @id @default(cuid())
+  name         String
+  classId      String
+  class        Class     @relation(fields: [classId], references: [id])
+  teacherId    String?   @unique
+  classTeacher Teacher?  @relation("ClassTeacher", fields: [teacherId], references: [id])
+  students     Student[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 }
 
 model Student {
-  id            String   @id @default(cuid())
-  name          String
-  admissionNo   String   @unique
-  email         String   @unique
-  password      String
-  schoolId      String
-  school        School   @relation(fields: [schoolId], references: [id])
-  streamId      String
-  stream        Stream   @relation(fields: [streamId], references: [id])
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id          String   @id @default(cuid())
+  name        String
+  admissionNo String   @unique
+  email       String   @unique
+  password    String
+  schoolId    String
+  role        String   @default("STUDENT")
+  school      School   @relation(fields: [schoolId], references: [id])
+  streamId    String
+  stream      Stream   @relation(fields: [streamId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
