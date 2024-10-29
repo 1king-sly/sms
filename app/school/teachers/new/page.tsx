@@ -18,6 +18,7 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState } from "react";
 import { ImagePlus } from "lucide-react";
+import Image from "next/image";
 
 const formSchema = z.object({
   name: z.string().min(2).max(100),
@@ -96,7 +97,7 @@ export default function NewTeacherPage() {
                 <div className="relative">
                   <div className="w-32 h-32 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden">
                     {photoPreview ? (
-                      <img
+                      <Image
                         src={photoPreview}
                         alt="Preview"
                         className="w-full h-full object-cover"
@@ -106,6 +107,7 @@ export default function NewTeacherPage() {
                     )}
                   </div>
                   <input
+                  title='Profile Image'
                     type="file"
                     accept="image/*"
                     onChange={handlePhotoChange}
