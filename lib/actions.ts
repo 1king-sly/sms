@@ -212,6 +212,45 @@ export const fetchSchoolStudents = async()=>{
         console.error('Failed to create students in a school', error)
     }
 }
+export const fetchSingleStudent = async({id}:{id:string})=>{
+    try{
+        const session = await getServerSession(authOptions)
+
+        if(!session){
+            return
+        }
+
+        const schoolAdmin = await prisma.schoolAdmin.findUnique({
+            where:{
+                email:session.email
+            }
+        })
+
+        if(!schoolAdmin){
+            return
+        }
+
+        const student = await prisma.student.findUnique({
+            where:{
+                schoolId:schoolAdmin.schoolId,
+                id:id,
+            },
+            include:{
+                stream:{
+                    include:{
+                        class:true,
+                    }
+                }
+            },
+           
+        })
+
+        return student
+
+    }catch(error:any){
+        console.error('Failed to fetch student in a school', error)
+    }
+}
 export const fetchSchoolTeachers = async()=>{
     try{
         const session = await getServerSession(authOptions)
@@ -252,6 +291,50 @@ export const fetchSchoolTeachers = async()=>{
         })
 
         return teachers
+
+    }catch(error:any){
+        console.error('Failed to fetch teachers in a school', error)
+    }
+}
+export const fetchSingleSchoolTeacher = async({id}:{id:string})=>{
+    try{
+        const session = await getServerSession(authOptions)
+
+        if(!session){
+            return
+        }
+
+        const schoolAdmin = await prisma.schoolAdmin.findUnique({
+            where:{
+                email:session.email
+            }
+        })
+
+        if(!schoolAdmin){
+            return
+        }
+
+        const teacher = await prisma.teacher.findUnique({
+            where:{
+                schoolId:schoolAdmin.schoolId,
+                id:id,
+            },
+            include:{
+                departments:{
+                    include:{
+                        department:true,
+                    }
+                },
+                subjects:{
+                    include:{
+                        subject:true,
+                    }
+                },
+                classTeacher:true,
+            },
+        })
+
+        return teacher
 
     }catch(error:any){
         console.error('Failed to fetch teachers in a school', error)

@@ -3,37 +3,15 @@ import { getServerSession } from "next-auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { fetchSingleSchoolTeacher } from "@/lib/actions";
 
 export default async function TeacherDetailsPage({
   params,
 }: {
   params: { id: string };
 }) {
-  // const session = await getServerSession(authOptions);
   
-  // const schoolAdmin = await db.schoolAdmin.findUnique({
-  //   where: { email: session?.user?.email },
-  // });
-
-  // const teacher = await db.teacher.findUnique({
-  //   where: {
-  //     id: params.id,
-  //     schoolId: schoolAdmin?.schoolId,
-  //   },
-  //   include: {
-  //     departments: {
-  //       include: {
-  //         department: true,
-  //       },
-  //     },
-  //     subjects: {
-  //       include: {
-  //         subject: true,
-  //       },
-  //     },
-  //     classTeacher: true,
-  //   },
-  // });
+  // const teacher = await fetchSingleSchoolTeacher(params.id)
 
   const teacher =  {
     id: "ckw1d9p45678bvlmnopqrtyz",
