@@ -171,3 +171,129 @@ export const fetchSchoolDepartments = async()=>{
 
 }
 
+
+export const fetchSchoolStudents = async()=>{
+    try{
+        const session = await getServerSession(authOptions)
+
+        if(!session){
+            return
+        }
+
+        const schoolAdmin = await prisma.schoolAdmin.findUnique({
+            where:{
+                email:session.email
+            }
+        })
+
+        if(!schoolAdmin){
+            return
+        }
+
+        const students = await prisma.student.findMany({
+            where:{
+                schoolId:schoolAdmin.schoolId
+            },
+            include:{
+                stream:{
+                    include:{
+                        class:true,
+                    }
+                }
+            },
+            orderBy:{
+                createdAt:'desc'
+            }
+        })
+
+        return students
+
+    }catch(error:any){
+        console.error('Failed to create students in a school', error)
+    }
+}
+export const fetchSchoolTeachers = async()=>{
+    try{
+        const session = await getServerSession(authOptions)
+
+        if(!session){
+            return
+        }
+
+        const schoolAdmin = await prisma.schoolAdmin.findUnique({
+            where:{
+                email:session.email
+            }
+        })
+
+        if(!schoolAdmin){
+            return
+        }
+
+        const teachers = await prisma.teacher.findMany({
+            where:{
+                schoolId:schoolAdmin.schoolId
+            },
+            include:{
+                departments:{
+                    include:{
+                        department:true,
+                    }
+                },
+                subjects:{
+                    include:{
+                        subject:true,
+                    }
+                }
+            },
+            orderBy:{
+                createdAt:'desc'
+            }
+        })
+
+        return teachers
+
+    }catch(error:any){
+        console.error('Failed to fetch teachers in a school', error)
+    }
+}
+export const fetchSchoolSubjects = async()=>{
+    try{
+        const session = await getServerSession(authOptions)
+
+        if(!session){
+            return
+        }
+
+        const schoolAdmin = await prisma.schoolAdmin.findUnique({
+            where:{
+                email:session.email
+            }
+        })
+
+        if(!schoolAdmin){
+            return
+        }
+
+        const subjects = await prisma.subject.findMany({
+            where:{
+                schoolId:schoolAdmin.schoolId
+            },
+            include:{
+                teachers:{
+                    include:{
+                        teacher:true,
+                    }
+                }
+            },
+            orderBy:{
+                createdAt:'desc'
+            }
+        })
+
+        return subjects
+
+    }catch(error:any){
+        console.error('Failed to fetch subjects in a school', error)
+    }
+}

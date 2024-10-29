@@ -11,35 +11,11 @@ import Link from "next/link";
 
 import { DataTable } from "./data-table";
 import { columns } from "./columns";
+import { fetchSchoolTeachers } from "@/lib/actions";
 
 export default async function TeachersPage() {
-  // const session = await getServerSession(authOptions);
-  
-  // const schoolAdmin = await db.schoolAdmin.findUnique({
-  //   where: { email: session?.user?.email },
-  // });
-
-  // const teachers = await db.teacher.findMany({
-  //   where: {
-  //     schoolId: schoolAdmin?.schoolId,
-  //   },
-  //   include: {
-  //     departments: {
-  //       include: {
-  //         department: true,
-  //       },
-  //     },
-  //     subjects: {
-  //       include: {
-  //         subject: true,
-  //       },
-  //     },
-  //   },
-  //   orderBy: {
-  //     createdAt: "desc",
-  //   },
-  // });
-
+ 
+  // const teachers = await fetchSchoolTeachers()
 
   const teachers = [
     {

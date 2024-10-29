@@ -8,32 +8,14 @@ import {
 } from "@/components/ui/card";
 import { Plus } from "lucide-react";
 import Link from "next/link";
-import { getServerSession } from "next-auth";
 import { DataTable } from "../departments/data-table";
 import { columns } from "./columns";
+import { fetchSchoolStudents } from "@/lib/actions";
+
 
 export default async function StudentsPage() {
-  // const session = await getServerSession(authOptions);
-  
-  // const schoolAdmin = await db.schoolAdmin.findUnique({
-  //   where: { email: session?.user?.email },
-  // });
-
-  // const students = await db.student.findMany({
-  //   where: {
-  //     schoolId: schoolAdmin?.schoolId,
-  //   },
-  //   include: {
-  //     stream: {
-  //       include: {
-  //         class: true,
-  //       },
-  //     },
-  //   },
-  //   orderBy: {
-  //     createdAt: "desc",
-  //   },
-  // });
+   
+  // const students = await fetchSchoolStudents()
 
   const students = [
     {

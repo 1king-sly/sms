@@ -11,29 +11,11 @@ import Link from "next/link";
 
 import { DataTable } from "../departments/data-table";
 import { columns } from "./columns";
+import { fetchSchoolSubjects } from "@/lib/actions";
 
 export default async function SubjectsPage() {
-  // const session = await getServerSession(authOptions);
-  
-  // const schoolAdmin = await db.schoolAdmin.findUnique({
-  //   where: { email: session?.user?.email },
-  // });
-
-  // const subjects = await db.subject.findMany({
-  //   where: {
-  //     schoolId: schoolAdmin?.schoolId,
-  //   },
-  //   include: {
-  //     teachers: {
-  //       include: {
-  //         teacher: true,
-  //       },
-  //     },
-  //   },
-  //   orderBy: {
-  //     name: "asc",
-  //   },
-  // });
+ 
+  // const subjects = await fetchSchoolSubjects()
 
 
   const subjects = [
