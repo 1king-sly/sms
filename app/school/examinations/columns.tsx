@@ -42,8 +42,9 @@ export const columns: ColumnDef<Exam>[] = [
     header: "Status",
     cell: ({ row }) => {
       const exam = row.original;
+      const badgeClass = exam.isPublished ? "bg-green-500 text-white" : "bg-yellow-500 text-white";
       return (
-        <Badge variant={exam.isPublished ? "success" : "warning"}>
+        <Badge className={badgeClass}>
           {exam.isPublished ? "Published" : "Draft"}
         </Badge>
       );

@@ -45,6 +45,7 @@ export default async function SubjectsPage() {
       ],
       createdAt: new Date("2023-09-10T08:00:00Z"),
       updatedAt: new Date("2023-09-10T08:00:00Z"),
+      isCore:true,
     },
     {
       id: "ckw1d9pqy2222qldfe23c3e1z",
@@ -66,6 +67,8 @@ export default async function SubjectsPage() {
       ],
       createdAt: new Date("2022-01-15T10:30:00Z"),
       updatedAt: new Date("2022-01-15T10:30:00Z"),
+      isCore:true
+
     },
   ];
   

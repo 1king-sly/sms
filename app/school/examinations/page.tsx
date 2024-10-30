@@ -11,6 +11,9 @@ import Link from "next/link";
 
 import { DataTable } from "../departments/data-table";
 import { columns } from "./columns";
+import { ExamType } from "@prisma/client";
+
+
 
 export default async function ExaminationsPage() {
  
@@ -19,7 +22,7 @@ export default async function ExaminationsPage() {
     {
       id: "exam1",
       name: "Term 1 Exam 2024",
-      type: "OPENER",
+      type: ExamType.OPENER,
       term: 1,
       academicYear: 2024,
       schoolId: "school1",
@@ -27,11 +30,14 @@ export default async function ExaminationsPage() {
       endDate: new Date("2024-02-20"),
       isPublished: true,
       isConsolidated: false,
+      createdAt: new Date(),
+    updatedAt: new Date(), 
+    academicYearId: null,
     },
     {
       id: "exam2",
       name: "Mid-Term Exam 2024",
-      type: "MID_TERM",
+      type: ExamType.MID_TERM,
       term: 1,
       academicYear: 2024,
       schoolId: "school1",
@@ -39,11 +45,15 @@ export default async function ExaminationsPage() {
       endDate: new Date("2024-03-15"),
       isPublished: false,
       isConsolidated: false,
+      createdAt: new Date(),
+      updatedAt: new Date(), 
+      academicYearId: null,
+
     },
     {
       id: "exam3",
       name: "End Term Exam 2024",
-      type: "END_TERM",
+      type: ExamType.END_TERM,
       term: 1,
       academicYear: 2024,
       schoolId: "school1",
@@ -51,11 +61,14 @@ export default async function ExaminationsPage() {
       endDate: new Date("2024-05-10"),
       isPublished: true,
       isConsolidated: true,
+      createdAt: new Date(),
+      updatedAt: new Date(), 
+      academicYearId: null,
     },
     {
       id: "exam4",
       name: "Mock Exam 2024",
-      type: "MOCK",
+      type: ExamType.MOCK,
       term: 2,
       academicYear: 2024,
       schoolId: "school1",
@@ -63,6 +76,9 @@ export default async function ExaminationsPage() {
       endDate: new Date("2024-07-17"),
       isPublished: true,
       isConsolidated: false,
+      createdAt: new Date(),
+      updatedAt: new Date(), 
+      academicYearId: null,
     },
   ];
   

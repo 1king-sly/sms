@@ -1,5 +1,5 @@
-import { NextResponse } from "next/response";
-import { db } from "@/lib/db";
+import { NextResponse } from "next/server";
+import prisma from "@/lib/db";
 
 const CORE_SUBJECTS = [
   { name: "Mathematics", initials: "MATH", category: "SCIENCES", isCore: true },
@@ -23,19 +23,19 @@ export async function POST(req: Request) {
     const currentYear = new Date().getFullYear();
 
     // Create academic year
-    const academicYear = await db.academicYear.create({
+    const academicYear = await prisma.academicYear.create({
       data: {
         year: currentYear,
         startDate: new Date(currentYear, 0, 1), // January 1st
         endDate: new Date(currentYear, 11, 31), // December 31st
-        school: {
-          connect: { id: schoolId }
+        School: {
+          connect: [{ id: schoolId }] 
         }
       }
     });
 
     // Create core subjects
-    await db.subject.createMany({
+    await prisma.subject.createMany({
       data: CORE_SUBJECTS.map(subject => ({
         ...subject,
         schoolId
@@ -46,7 +46,7 @@ export async function POST(req: Request) {
     for (const className of CLASS_NAMES) {
       const isGraduated = className === "Graduated";
       
-      const classData = await db.class.create({
+      const classData = await prisma.class.create({
         data: {
           name: className,
           academicYear: currentYear,

@@ -1,7 +1,7 @@
-import { NextResponse } from "next/response";
-import { db } from "@/lib/db";
+import { NextResponse } from "next/server";
+import prisma from "@/lib/db";
 import { getServerSession } from "next-auth";
-import { authOptions } from "../../../../auth/[...nextauth]/route";
+import { authOptions } from '@/utils/authOptions';
 
 export async function GET(
   req: Request,
@@ -15,7 +15,7 @@ export async function GET(
     }
 
     // Get all exam results for the student
-    const examResults = await db.examResult.findMany({
+    const examResults = await prisma.examResult.findMany({
       where: {
         studentId: params.id,
       },
@@ -61,7 +61,7 @@ export async function GET(
         const averageMarks = group.totalMarks / group.subjectCount;
 
         // Get all students' averages for this exam for ranking
-        const allResults = await db.examResult.groupBy({
+        const allResults = await prisma.examResult.groupBy({
           by: ["studentId"],
           where: {
             examId: group.examId,
@@ -74,7 +74,7 @@ export async function GET(
         // Sort averages to determine rank
         const sortedAverages = allResults
           .map(r => r._avg.marks || 0)
-          .sort((a, b) => b - a);
+          .sort((a: number, b: number) => b - a);
         
         const rank = sortedAverages.indexOf(averageMarks) + 1;
 

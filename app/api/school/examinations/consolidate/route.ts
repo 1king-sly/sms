@@ -50,7 +50,10 @@ export async function POST(req: Request) {
     });
 
     // Group results by student and subject
-    const consolidatedResults = examResults.reduce((acc: { [x: string]: { marks: any[]; }; }, result: { studentId: any; subjectId: any; marks: any; }) => {
+    const consolidatedResults = examResults.reduce((acc: { [x: string]: {
+      studentId: any;
+      subjectId: any; marks: any[]; 
+}; }, result: { studentId: any; subjectId: any; marks: any; }) => {
       const key = `${result.studentId}-${result.subjectId}`;
       if (!acc[key]) {
         acc[key] = {
