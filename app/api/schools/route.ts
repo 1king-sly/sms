@@ -1,14 +1,16 @@
-import { NextResponse } from 'next/server';
-import { hash } from "bcryptjs";
+// Update the existing POST method in the schools API route
+
 import prisma from "@/lib/db";
-import { getServerSession } from "next-auth";
 import { authOptions } from '@/utils/authOptions';
+import { hash } from "bcryptjs";
+import { getServerSession } from "next-auth";
+import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session || session.user?.role !== "SUPER_ADMIN") {
+    if (!session || session.user.role !== "SUPER_ADMIN") {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
@@ -25,8 +27,9 @@ export async function POST(req: Request) {
     } = body;
 
     const hashedPassword = await hash(password, 10);
-    const hashedAdminPassword = await hash(adminEmail, 10); // Using admin email as default password
+    const hashedAdminPassword = await hash(adminEmail, 10);
 
+    // Create school with admin
     const school = await prisma.school.create({
       data: {
         name,
@@ -46,33 +49,16 @@ export async function POST(req: Request) {
       },
     });
 
+    // Set up school with default data
+    await fetch("/api/school/setup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ schoolId: school.id }),
+    });
+
     return NextResponse.json(school);
   } catch (error) {
     console.error("[SCHOOLS_POST]", error);
-    return new NextResponse("Internal Error", { status: 500 });
-  }
-}
-
-export async function GET(req: Request) {
-  try {
-    const session = await getServerSession(authOptions);
-
-    if (!session || session.user.role !== "SUPER_ADMIN") {
-      return new NextResponse("Unauthorized", { status: 401 });
-    }
-
-    const schools = await prisma.school.findMany({
-      include: {
-        schoolAdmin: true,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
-
-    return NextResponse.json(schools);
-  } catch (error) {
-    console.error("[SCHOOLS_GET]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }

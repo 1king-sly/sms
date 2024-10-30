@@ -20,20 +20,23 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { name, initials, category } = body;
+    const { name, type, term, startDate, endDate, academicYear } = body;
 
-    const subject = await db.subject.create({
+    const exam = await db.exam.create({
       data: {
         name,
-        initials,
-        category,
+        type,
+        term,
+        academicYear,
+        startDate: new Date(startDate),
+        endDate: new Date(endDate),
         schoolId: schoolAdmin.schoolId,
       },
     });
 
-    return NextResponse.json(subject);
+    return NextResponse.json(exam);
   } catch (error) {
-    console.error("[SUBJECTS_POST]", error);
+    console.error("[EXAMINATIONS_POST]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }
@@ -54,25 +57,18 @@ export async function GET(req: Request) {
       return new NextResponse("School admin not found", { status: 404 });
     }
 
-    const subjects = await db.subject.findMany({
+    const exams = await db.exam.findMany({
       where: {
         schoolId: schoolAdmin.schoolId,
       },
-      include: {
-        teachers: {
-          include: {
-            teacher: true,
-          },
-        },
-      },
       orderBy: {
-        name: "asc",
+        createdAt: "desc",
       },
     });
 
-    return NextResponse.json(subjects);
+    return NextResponse.json(exams);
   } catch (error) {
-    console.error("[SUBJECTS_GET]", error);
+    console.error("[EXAMINATIONS_GET]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }

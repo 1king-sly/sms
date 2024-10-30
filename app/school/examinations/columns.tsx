@@ -1,7 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { Student } from "@prisma/client";
+import { Exam } from "@prisma/client";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -13,36 +13,38 @@ import { MoreHorizontal } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 
-interface StudentWithRelations extends Student {
-  stream: {
-    name: string;
-    class: {
-      name: string;
-    };
-  };
-}
-
-export const columns: ColumnDef<StudentWithRelations>[] = [
-  {
-    accessorKey: "admissionNo",
-    header: "Admission No",
-  },
+export const columns: ColumnDef<Exam>[] = [
   {
     accessorKey: "name",
-    header: "Name",
+    header: "Exam Name",
   },
   {
-    accessorKey: "email",
-    header: "Email",
-  },
-  {
-    accessorKey: "stream",
-    header: "Class",
+    accessorKey: "type",
+    header: "Type",
     cell: ({ row }) => {
-      const student = row.original;
       return (
-        <Badge variant="outline">
-          {student.stream.class.name} {student.stream.name}
+        <Badge variant="secondary">
+          {row.original.type.replace("_", " ")}
+        </Badge>
+      );
+    },
+  },
+  {
+    accessorKey: "term",
+    header: "Term",
+  },
+  {
+    accessorKey: "academicYear",
+    header: "Year",
+  },
+  {
+    accessorKey: "status",
+    header: "Status",
+    cell: ({ row }) => {
+      const exam = row.original;
+      return (
+        <Badge variant={exam.isPublished ? "success" : "warning"}>
+          {exam.isPublished ? "Published" : "Draft"}
         </Badge>
       );
     },
@@ -50,7 +52,7 @@ export const columns: ColumnDef<StudentWithRelations>[] = [
   {
     id: "actions",
     cell: ({ row }) => {
-      const student = row.original;
+      const exam = row.original;
 
       return (
         <DropdownMenu>
@@ -61,16 +63,20 @@ export const columns: ColumnDef<StudentWithRelations>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem asChild>
-              <Link href={`/school/students/${student.id}`}>View Details</Link>
+              <Link href={`/school/examinations/${exam.id}`}>View Details</Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link href={`/school/students/${student.id}/edit`}>Edit</Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href={`/school/students/${student.id}/performance`}>
+              <Link href={`/school/examinations/${exam.id}/results`}>
                 View Results
               </Link>
             </DropdownMenuItem>
+            {!exam.isPublished && (
+              <DropdownMenuItem asChild>
+                <Link href={`/school/examinations/${exam.id}/results/upload`}>
+                  Upload Results
+                </Link>
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       );

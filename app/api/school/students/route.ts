@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server";
+import { NextResponse } from "next/response";
 import { hash } from "bcryptjs";
-import prisma from "@/lib/db";
+import { db } from "@/lib/db";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/utils/authOptions";
+import { authOptions } from "../../auth/[...nextauth]/route";
 
 export async function POST(req: Request) {
   try {
@@ -12,7 +12,7 @@ export async function POST(req: Request) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    const schoolAdmin = await prisma.schoolAdmin.findUnique({
+    const schoolAdmin = await db.schoolAdmin.findUnique({
       where: { email: session.user.email },
     });
 
@@ -26,7 +26,7 @@ export async function POST(req: Request) {
     // Use admission number as initial password
     const hashedPassword = await hash(admissionNo, 10);
 
-    const student = await prisma.student.create({
+    const student = await db.student.create({
       data: {
         name,
         email,
@@ -59,7 +59,7 @@ export async function GET(req: Request) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    const schoolAdmin = await prisma.schoolAdmin.findUnique({
+    const schoolAdmin = await db.schoolAdmin.findUnique({
       where: { email: session.user.email },
     });
 
@@ -67,7 +67,7 @@ export async function GET(req: Request) {
       return new NextResponse("School admin not found", { status: 404 });
     }
 
-    const students = await prisma.student.findMany({
+    const students = await db.student.findMany({
       where: {
         schoolId: schoolAdmin.schoolId,
       },

@@ -38,9 +38,11 @@ model School {
   students     Student[]
   classes      Class[]
 
-  Subject Subject[]
+  subjects Subject[]
 
   DepartmentAdmin DepartmentAdmin[]
+  exams            Exam[]
+  academicYears AcademicYear[]
 }
 
 model SchoolAdmin {
@@ -99,6 +101,8 @@ model Teacher {
   classTeacher Stream?             @relation("ClassTeacher")
   createdAt    DateTime            @default(now())
   updatedAt    DateTime            @updatedAt
+
+  ExamResult ExamResult[]
 }
 
 model TeacherDepartment {
@@ -123,6 +127,9 @@ model Subject {
   teachers  TeacherSubject[]
   createdAt DateTime         @default(now())
   updatedAt DateTime         @updatedAt
+
+  examResults ExamResult[]
+  isCore      Boolean   @default(false)
 }
 
 model TeacherSubject {
@@ -137,15 +144,7 @@ model TeacherSubject {
   @@unique([teacherId, subjectId])
 }
 
-model Class {
-  id        String   @id @default(cuid())
-  name      String
-  schoolId  String
-  school    School   @relation(fields: [schoolId], references: [id])
-  streams   Stream[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
+
 
 model Stream {
   id           String    @id @default(cuid())
@@ -172,4 +171,81 @@ model Student {
   stream      Stream   @relation(fields: [streamId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  ExamResult ExamResult[]
+}
+
+model AcademicYear {
+  id        String   @id @default(cuid())
+  year      Int      @unique
+  startDate DateTime
+  endDate   DateTime
+  classes   Class[]
+  exams     Exam[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  School School[]
+}
+
+model Class {
+  id             String        @id @default(cuid())
+  name           String // e.g., "Form 1", "Form 2"
+  academicYear   Int // e.g., 2024
+  schoolId       String
+  school         School        @relation(fields: [schoolId], references: [id])
+  streams        Stream[]
+  isGraduated    Boolean       @default(false)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  AcademicYear   AcademicYear? @relation(fields: [academicYearId], references: [id])
+  academicYearId String?
+
+  @@unique([name, academicYear, schoolId])
+}
+
+model Exam {
+  id             String        @id @default(cuid())
+  name           String // e.g., "Term 1 Exam 2024"
+  type           ExamType
+  term           Int // 1, 2, or 3
+  academicYear   Int
+  schoolId       String
+  school         School        @relation(fields: [schoolId], references: [id])
+  startDate      DateTime
+  endDate        DateTime
+  isPublished    Boolean       @default(false)
+  isConsolidated Boolean       @default(false)
+  examResults    ExamResult[]
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  AcademicYear   AcademicYear? @relation(fields: [academicYearId], references: [id])
+  academicYearId String?
+}
+
+enum ExamType {
+  OPENER
+  MID_TERM
+  END_TERM
+  MOCK
+  CONSOLIDATED
+}
+
+model ExamResult {
+  id        String   @id @default(cuid())
+  examId    String
+  exam      Exam     @relation(fields: [examId], references: [id])
+  studentId String
+  student   Student  @relation(fields: [studentId], references: [id])
+  subjectId String
+  subject   Subject  @relation(fields: [subjectId], references: [id])
+  marks     Float
+  grade     String
+  remarks   String?
+  teacherId String
+  teacher   Teacher  @relation(fields: [teacherId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([examId, studentId, subjectId])
 }

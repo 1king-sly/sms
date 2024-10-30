@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
-import prisma from "@/lib/db";
+import { NextResponse } from "next/response";
+import { db } from "@/lib/db";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/utils/authOptions";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 export async function GET(
   req: Request,
@@ -14,7 +14,7 @@ export async function GET(
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    const schoolAdmin = await prisma.schoolAdmin.findUnique({
+    const schoolAdmin = await db.schoolAdmin.findUnique({
       where: { email: session.user.email },
     });
 
@@ -23,7 +23,7 @@ export async function GET(
     }
 
     // Get all teachers and their assignment status for this subject
-    const teachers = await prisma.teacher.findMany({
+    const teachers = await db.teacher.findMany({
       where: {
         schoolId: schoolAdmin.schoolId,
       },
@@ -68,14 +68,14 @@ export async function POST(
     const { teacherIds } = body;
 
     // Remove all existing assignments
-    await prisma.teacherSubject.deleteMany({
+    await db.teacherSubject.deleteMany({
       where: {
         subjectId: params.id,
       },
     });
 
     // Create new assignments
-    await prisma.teacherSubject.createMany({
+    await db.teacherSubject.createMany({
       data: teacherIds.map((teacherId: string) => ({
         teacherId,
         subjectId: params.id,
