@@ -23,10 +23,15 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { jsPDF } from "jspdf";
-import autoTable from "jspdf-autotable";import * as XLSX from "xlsx";
+import autoTable from "jspdf-autotable";
+import * as XLSX from "xlsx";
 
+import { ResultSlip } from "./components/result-slip";
+import { PerformanceGraphs } from "./components/performance-graphs";
+import { GradeDistribution } from "./components/grade-distribution";
+import { ClassStreamAnalysis } from "./components/class-stream-analysis";
 
-
+type Grade = "A" | "B+" | "B";
 interface Performance {
   examId: string;
   examName: string;
@@ -41,19 +46,42 @@ interface Performance {
   grade: string;
   rank: number;
   totalStudents: number;
+  historicalData: Array<{ name: string; average: number }>;
+  subjectPerformance: { subject: string; performance: number }[];
+  predictions: { subject: string; predictedGrade: string }[];
+  exams: {
+    id: string;
+    name: string;
+    classTeacher: string;
+    principal: string;
+  }[];
+  gradeDistribution: Record<string, number>;
+  streamData: { streamName: string; averageScore: number }[];
+  classData: { className: string; averageScore: number }[];
 }
 
 export default function StudentPerformancePage() {
   const params = useParams();
-  // const [student, setStudent] = useState<any>(null);
-  // const [performances, setPerformances] = useState<Performance[]>([]);
-  // const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
 
-  const [student, setStudent] = useState({
+  const student = {
     name: "John Doe",
     admissionNo: "A12345",
-  });
-  
+    photo: "/images/photo.jpg",
+    stream: {
+      class: { name: "10" },
+      name: "A",
+    },
+  };
+
+  const schoolData = {
+    name: "Moi Forces Academy",
+    address: "Likonki, Mombasa",
+    contact: "+254720041750",
+    logo: "/images/logo.jpeg",
+  };
+
   const [performances, setPerformances] = useState<Performance[]>([
     {
       examId: "exam1",
@@ -69,77 +97,90 @@ export default function StudentPerformancePage() {
       grade: "A",
       rank: 1,
       totalStudents: 30,
-    },
-    {
-      examId: "exam2",
-      examName: "English Mid Term",
-      term: 1,
-      academicYear: 2024,
-      subjects: [
-        { name: "Math", marks: 88, grade: "A" },
-        { name: "English", marks: 81, grade: "A-" },
-        { name: "Science", marks: 76, grade: "B+" },
+      historicalData: [
+        { name: "Term 1", average: 75 },
+        { name: "Term 2", average: 80 },
       ],
-      averageMarks: 81.67,
-      grade: "A-",
-      rank: 3,
-      totalStudents: 30,
-    },
-    {
-      examId: "exam3",
-      examName: "Science End Term",
-      term: 1,
-      academicYear: 2024,
-      subjects: [
-        { name: "Math", marks: 90, grade: "A+" },
-        { name: "English", marks: 74, grade: "B" },
-        { name: "Science", marks: 80, grade: "B+" },
+      subjectPerformance: [
+        { subject: "Math", performance: 85 },
+        { subject: "English", performance: 78 },
       ],
-      averageMarks: 81.33,
-      grade: "A-",
-      rank: 2,
-      totalStudents: 30,
+      predictions: [
+        { subject: "Math", predictedGrade: "A" },
+        { subject: "English", predictedGrade: "B+" },
+      ],
+      exams: [
+        {
+          id: "1",
+          name: "Math Opener",
+          classTeacher: "Mr. Smith",
+          principal: "Dr. Brown",
+        },
+      ],
+      gradeDistribution: { A: 5, "B+": 10, B: 15 },
+      streamData: [
+        { streamName: "Stream 1", averageScore: 78 },
+        { streamName: "Stream 2", averageScore: 80 },
+      ],
+      classData: [
+        { className: "Class 1", averageScore: 82 },
+        { className: "Class 2", averageScore: 79 },
+      ],
     },
   ]);
-  
-  const [loading, setLoading] = useState(false); // Set loading to false since no API call is needed
-  
 
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       const [studentRes, performanceRes] = await Promise.all([
-  //         fetch(`/api/school/students/${params.id}`),
-  //         fetch(`/api/school/students/${params.id}/performance`),
-  //       ]);
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const [studentRes, performanceRes] = await Promise.all([
+          fetch(`/api/school/students/${params.id}`),
+          fetch(`/api/school/students/${params.id}/performance`),
+        ]);
 
-  //       const studentData = await studentRes.json();
-  //       const performanceData = await performanceRes.json();
+        const studentData = await studentRes.json();
+        const performanceData = await performanceRes.json();
 
-  //       setStudent(studentData);
-  //       setPerformances(performanceData);
-  //     } catch (error) {
-  //       console.error("Failed to fetch data:", error);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
+        setData({
+          student: studentData,
+          performance: performanceData,
+        });
+      } catch (error) {
+        console.error("Failed to fetch data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  //   fetchData();
-  // }, [params.id]);
+    fetchData();
+  }, [params.id]);
+
+  // Generate color for each grade
+  const getColorForGrade = (grade: Grade) => {
+    const colors: Record<Grade, string> = {
+      A: "#4caf50",
+      "B+": "#2196f3",
+      B: "#ff9800",
+    };
+    return colors[grade] || "#000000";
+  };
+
+  const formattedGradeData = Object.entries(
+    performances[0].gradeDistribution
+  ).map(([grade, count]) => ({
+    grade: grade as Grade,
+    count,
+    color: getColorForGrade(grade as Grade),
+  }));
 
   const generatePDF = () => {
-
     const doc = new jsPDF();
-    
-    // Add header
     doc.setFontSize(16);
     doc.text(`Performance Report - ${student.name}`, 14, 15);
     doc.setFontSize(12);
     doc.text(`Admission No: ${student.admissionNo}`, 14, 25);
-    
-    // Add performance table
-    const tableData = performances.map(p => [
+
+    const tableData = performances.map((p) => [
       p.examName,
       `Term ${p.term}`,
       p.academicYear.toString(),
@@ -159,13 +200,13 @@ export default function StudentPerformancePage() {
 
   const generateExcel = () => {
     const ws = XLSX.utils.json_to_sheet(
-      performances.map(p => ({
+      performances.map((p) => ({
         "Exam Name": p.examName,
-        "Term": p.term,
-        "Year": p.academicYear,
+        Term: p.term,
+        Year: p.academicYear,
         "Average Marks": p.averageMarks,
-        "Grade": p.grade,
-        "Rank": `${p.rank}/${p.totalStudents}`,
+        Grade: p.grade,
+        Rank: `${p.rank}/${p.totalStudents}`,
       }))
     );
 
@@ -182,7 +223,7 @@ export default function StudentPerformancePage() {
     return <div>Loading...</div>;
   }
 
-  const chartData = performances.map(p => ({
+  const chartData = performances.map((p) => ({
     name: p.examName,
     average: p.averageMarks,
   }));
@@ -212,108 +253,105 @@ export default function StudentPerformancePage() {
         </div>
       </div>
 
-      <Tabs defaultValue="overview">
+      <Tabs defaultValue="overview" className="space-y-4">
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="exams">Exam Results</TabsTrigger>
-          <TabsTrigger value="subjects">Subject Analysis</TabsTrigger>
+          <TabsTrigger value="results">Exam Results</TabsTrigger>
+          <TabsTrigger value="analysis">Performance Analysis</TabsTrigger>
+          <TabsTrigger value="comparison">Class Comparison</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview">
-          <Card>
-            <CardHeader>
-              <CardTitle>Performance Trend</CardTitle>
-              <CardDescription>
-                Average marks across all examinations
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-[400px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={chartData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis domain={[0, 100]} />
-                    <Tooltip />
-                    <Legend />
-                    <Line
-                      type="monotone"
-                      dataKey="average"
-                      stroke="#8884d8"
-                      name="Average Marks"
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="grid gap-6 md:grid-cols-2">
+            <PerformanceGraphs
+              historicalData={performances[0].historicalData}
+              subjectPerformance={performances[0].subjectPerformance}
+              predictions={performances[0].predictions}
+            />
+          </div>
         </TabsContent>
 
-        <TabsContent value="exams">
-          <Card>
-            <CardHeader>
-              <CardTitle>Examination Results</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-8">
-                {performances.map((performance) => (
-                  <div key={performance.examId} className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <h3 className="text-lg font-semibold">
-                          {performance.examName}
-                        </h3>
-                        <p className="text-sm text-muted-foreground">
-                          Term {performance.term}, {performance.academicYear}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-2xl font-bold">
-                          {performance.averageMarks.toFixed(2)}%
-                        </p>
-                        <p className="text-sm">
-                          Rank: {performance.rank}/{performance.totalStudents}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {performance.subjects.map((subject) => (
-                        <Card key={subject.name}>
-                          <CardContent className="p-4">
-                            <div className="flex justify-between items-center">
-                              <p className="font-medium">{subject.name}</p>
-                              <div className="text-right">
-                                <p className="text-lg font-semibold">
-                                  {subject.marks}%
-                                </p>
-                                <p className="text-sm text-muted-foreground">
-                                  Grade: {subject.grade}
-                                </p>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+        <TabsContent value="results">
+          <div className="grid gap-6">
+            <ResultSlip
+              student={{
+                name: "John Doe",
+                admissionNo: "123",
+                photo: "/images/photo.jpg",
+                stream: { class: { name: "10A" }, name: "Science" },
+              }}
+              exam={{
+                name: "Mid Term",
+                term: "1",
+                academicYear: "2024",
+                subjects: [ 
+                  { name: "Math", marks: 85, grade: "A",teacher:{
+                  name:'Byrone'
+                },remarks:'Good work' }
+                ,
+                  { name: "English", marks: 78, grade: "B+",teacher:{
+                    name:'Byrone'
+                  },remarks:'Good work'  },
+                  { name: "Science", marks: 92, grade: "A+",teacher:{
+                    name:'Byrone'
+                  },remarks:'Good work' },
+                ],
+                meanGrade: "B",
+                meanMarks: 75,
+                rank: 5,
+                totalStudents: 30,
+              }}
+              school={{
+                name: "ABC High School",
+                address: "123 School St.",
+                contact: "123-456-7890",
+                logo: "/images/logo.jpeg",
+              }}
+              classTeacher={{ name: "Ms. Smith", remarks: "Good job!" }}
+              principal={{
+                name: "Mr. Johnson",
+                remarks: "Keep up the good work!",
+              }}
+            />
+          </div>
         </TabsContent>
 
-        <TabsContent value="subjects">
-          <Card>
-            <CardHeader>
-              <CardTitle>Subject Performance Analysis</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {/* Add subject-wise analysis here */}
-            </CardContent>
-          </Card>
+        <TabsContent value="analysis">
+          <div className="grid gap-6">
+          <GradeDistribution 
+      gradeData={formattedGradeData} // Updated prop name
+      totalStudents={performances[0].totalStudents} // Add totalStudents from performance data
+    />
+
+          </div>
+        </TabsContent>
+
+        <TabsContent value="comparison">
+          <ClassStreamAnalysis
+            streamData={performances[0].streamData}
+            classData={performances[0].classData}
+          />
         </TabsContent>
       </Tabs>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Performance Chart</CardTitle>
+          <CardDescription>Average performance over exams.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ResponsiveContainer width="100%" height={400}>
+            <LineChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Line type="monotone" dataKey="average" stroke="#8884d8" />
+            </LineChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
     </div>
   );
 }
